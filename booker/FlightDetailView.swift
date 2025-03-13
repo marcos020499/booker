@@ -17,7 +17,7 @@ struct FlightDetailView: View {
                 Text("\(flight.departureAirport) → \(flight.arrivalAirport)")
                     .font(.largeTitle)
                     .bold()
-
+                
                 Text("Departure: \(flight.departureDateTime)")
                     .font(.title2)
                 Text("Arrival: \(flight.arrivalDateTime)")
@@ -28,6 +28,16 @@ struct FlightDetailView: View {
                     .font(.title)
                     .bold()
                     .foregroundColor(.green)
+                
+                NavigationLink(destination: PaymentView(flight: flight)) {
+                    Text("Continue to Pay")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                .padding()
             } else {
                 Text("No Flight Selected")
                     .font(.title)
