@@ -1,5 +1,15 @@
 import SwiftUI
 
+extension View {
+    @ViewBuilder func changeTextColor(_ color: Color) -> some View {
+        if UITraitCollection.current.userInterfaceStyle == .light {
+            self.colorInvert().colorMultiply(color)
+        } else {
+            self.colorMultiply(color)
+        }
+    }
+}
+
 struct ContentView: View {
     @State private var selectedFlightType: FlightType = .oneWay
     @State private var origin: Airport? = nil
@@ -31,26 +41,29 @@ struct ContentView: View {
                         .foregroundColor(.white)
                         .padding(.top, 40)
                     
-                    HStack {
+                    HStack(spacing: 0) {
                         ForEach(FlightType.allCases, id: \.self) { type in
                             Text(type.rawValue)
-                                .foregroundColor(selectedFlightType == type ? .black : .white)
+                                .foregroundColor(selectedFlightType == type ? .white : .black)
                                 .padding()
                                 .frame(maxWidth: .infinity)
-                                .background(selectedFlightType == type ? Color.white : Color.clear)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.white, lineWidth: 2)
-                                )
+                                .background(selectedFlightType == type ? Color("amBlue") : Color.clear)
+                                .contentShape(Rectangle())
                                 .onTapGesture {
                                     selectedFlightType = type
                                 }
                         }
                     }
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.black, lineWidth: 2)
+                    )
                     .padding()
                     
                     HStack(spacing: 10) {
-                        AirportButton(label: "From", airport: origin) {
+                        AirportButton(label: "From", airport: origin, icon: "airplane.departure") {
                             selectingForOrigin = true
                             showAirportSheet = true
                         }
@@ -68,37 +81,36 @@ struct ContentView: View {
                                 .cornerRadius(8)
                         }
                         
-                        AirportButton(label: "To", airport: destination) {
+                        AirportButton(label: "To", airport: destination, icon: "airplane.arrival") {
                             selectingForOrigin = false
                             showAirportSheet = true
                         }
                     }
                     .padding(.horizontal)
                     
-                    VStack(spacing: 10) {
-                        DatePicker("Departure", selection: $departureDate, displayedComponents: .date)
+                    HStack(spacing: 10) {
+                        DatePicker("Dep", selection: $departureDate, displayedComponents: .date)
                             .datePickerStyle(CompactDatePickerStyle())
                             .padding()
                             .frame(maxWidth: .infinity)
-                            .background(Color.blue)
+                            .background(Color(.blue))
                             .cornerRadius(8)
                             .foregroundColor(.white)
-                            .accentColor(.white)
-                            .environment(\.colorScheme, .dark)
+                            .colorScheme(.dark)
                         
                         if selectedFlightType == .roundTrip {
-                            DatePicker("Return", selection: $returnDate, in: departureDate..., displayedComponents: .date)
+                            DatePicker("Ret", selection: $returnDate, in: departureDate..., displayedComponents: .date)
                                 .datePickerStyle(CompactDatePickerStyle())
                                 .padding()
                                 .frame(maxWidth: .infinity)
-                                .background(Color.blue)
+                                .background(.blue)
                                 .cornerRadius(8)
                                 .foregroundColor(.white)
-                                .accentColor(.white)
-                                .environment(\.colorScheme, .dark)
+                                .colorScheme(.dark)
                         }
                     }
                     .padding(.horizontal)
+                    .frame(height: 80)
                     
                     Button(action: {
                         showPassengerSheet = true
@@ -111,7 +123,7 @@ struct ContentView: View {
                                 .foregroundColor(.white)
                         }
                         .padding()
-                        .background(Color.blue)
+                        .background(.blue)
                         .cornerRadius(8)
                     }
                     .padding(.horizontal)
@@ -130,10 +142,10 @@ struct ContentView: View {
                         }) {
                             Text("Search Flights")
                                 .font(.headline)
-                                .foregroundColor(.white)
+                                .foregroundColor(isFormComplete ? .white : .black)
                                 .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(isFormComplete ? Color.green : Color.gray)
+                                .background(isFormComplete ? Color("amRed") : Color.white)
                                 .cornerRadius(8)
                         }
                         .padding(.horizontal)

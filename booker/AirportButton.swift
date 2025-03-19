@@ -3,6 +3,7 @@ import SwiftUI
 struct AirportButton: View {
     var label: String
     var airport: Airport?
+    var icon: String
     var action: () -> Void
 
     var body: some View {
@@ -10,7 +11,7 @@ struct AirportButton: View {
             HStack {
                 airport == nil ?
                 Text("\(label)")
-                    .foregroundColor(.white)
+                    .foregroundColor(.black)
                     .lineLimit(nil)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
@@ -21,12 +22,12 @@ struct AirportButton: View {
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer()
-                Image(systemName: "airplane")
-                    .foregroundColor(.white)
+                Image(systemName: icon)
+                    .foregroundColor(airport == nil ? .black : .white)
             }
             .padding()
             .frame(height: 80)
-            .background(airport == nil ? Color.gray : Color.blue)
+            .background(airport == nil ? Color.white : .blue)
             .cornerRadius(8)
         }
     }

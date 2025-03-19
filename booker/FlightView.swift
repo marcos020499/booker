@@ -5,12 +5,23 @@ struct Flight: Identifiable {
     let id = UUID()
     let departureAirport: String
     let arrivalAirport: String
-    let departureDateTime: String
-    let arrivalDateTime: String
+    let departureDateTime: Date
+    let arrivalDateTime: Date
+    let airline: String
+    let flightNumber: String
+    let duration: Int // Duration in minutes
+    let seatClass: SeatClass
+    let baggageAllowance: Int // In kg
+    let fareFamily: String
     let price: Double
     let currency: String
-    let fareFamily: String
-    let duration: Int // Duration in minutes
+    let progress: Double // Progress of the flight (0.0 - 1.0)
+}
+
+enum SeatClass: String {
+    case economy = "Economy"
+    case business = "Business"
+    case firstClass = "First Class"
 }
 
 struct FlightView: View {
@@ -25,10 +36,29 @@ struct FlightView: View {
     @State private var durationRange: ClosedRange<Double> = 60...300
 
     let flights: [Flight] = [
-        Flight(departureAirport: "MEX", arrivalAirport: "ACA", departureDateTime: "16:25", arrivalDateTime: "17:37", price: 4169.0, currency: "MXN", fareFamily: "ECONOMY", duration: 72),
-        Flight(departureAirport: "MEX", arrivalAirport: "CUN", departureDateTime: "09:15", arrivalDateTime: "12:40", price: 3899.0, currency: "MXN", fareFamily: "ECONOMY", duration: 205),
-        Flight(departureAirport: "MEX", arrivalAirport: "ACA", departureDateTime: "07:30", arrivalDateTime: "08:42", price: 5432.0, currency: "MXN", fareFamily: "AM_PLUS", duration: 72),
-        Flight(departureAirport: "MEX", arrivalAirport: "CUN", departureDateTime: "11:50", arrivalDateTime: "15:10", price: 6299.0, currency: "MXN", fareFamily: "AM_PLUS", duration: 200)
+        Flight(departureAirport: "MEX", arrivalAirport: "ACA",
+               departureDateTime: Date(), arrivalDateTime: Calendar.current.date(byAdding: .minute, value: 72, to: Date())!,
+               airline: "Aeroméxico", flightNumber: "AM243", duration: 72,
+               seatClass: .economy, baggageAllowance: 15,
+               fareFamily: "ECONOMY", price: 4169.0, currency: "MXN", progress: 0.2),
+        
+        Flight(departureAirport: "MEX", arrivalAirport: "CUN",
+               departureDateTime: Date(), arrivalDateTime: Calendar.current.date(byAdding: .minute, value: 205, to: Date())!,
+               airline: "Volaris", flightNumber: "VO326", duration: 205,
+               seatClass: .economy, baggageAllowance: 20,
+               fareFamily: "ECONOMY", price: 3899.0, currency: "MXN", progress: 0.5),
+        
+        Flight(departureAirport: "MEX", arrivalAirport: "ACA",
+               departureDateTime: Date(), arrivalDateTime: Calendar.current.date(byAdding: .minute, value: 72, to: Date())!,
+               airline: "Interjet", flightNumber: "IJ102", duration: 72,
+               seatClass: .business, baggageAllowance: 25,
+               fareFamily: "AM_PLUS", price: 5432.0, currency: "MXN", progress: 0.3),
+        
+        Flight(departureAirport: "MEX", arrivalAirport: "CUN",
+               departureDateTime: Date(), arrivalDateTime: Calendar.current.date(byAdding: .minute, value: 200, to: Date())!,
+               airline: "Aeroméxico", flightNumber: "AM458", duration: 200,
+               seatClass: .business, baggageAllowance: 30,
+               fareFamily: "AM_PLUS", price: 6299.0, currency: "MXN", progress: 0.7)
     ]
 
     var filteredFlights: [Flight] {
@@ -43,7 +73,6 @@ struct FlightView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                // **Cabin Selection Buttons**
                 HStack(spacing: 10) {
                     CabinButton(label: "ECONOMY", color: .brown, isSelected: selectedFareFamily == "ECONOMY") {
                         selectedFareFamily = "ECONOMY"
@@ -57,7 +86,6 @@ struct FlightView: View {
                 }
                 .padding(.horizontal)
 
-                // **Filter Toggle Button**
                 Button(action: { showFilters.toggle() }) {
                     HStack {
                         Image(systemName: "line.horizontal.3.decrease.circle")
@@ -68,11 +96,8 @@ struct FlightView: View {
                     .foregroundColor(.blue)
                     .padding()
                 }
-
-                // **Filters Section (Toggles Visibility)**
                 if showFilters {
                     VStack(alignment: .leading, spacing: 10) {
-                        // **Time Range Filter**
                         Text("Filter by Time")
                             .font(.headline)
                         Picker("Time Range", selection: $selectedTimeRange) {
@@ -101,25 +126,43 @@ struct FlightView: View {
                     .padding()
                     .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemGray6)))
                     .padding(.horizontal)
-                    .transition(.slide) // Smooth transition
+                    .transition(.slide)
                 }
 
-                // **Flight List**
                 List(filteredFlights) { flight in
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("\(flight.departureAirport) → \(flight.arrivalAirport)")
-                            .font(.headline)
-                        Text("Departure: \(flight.departureDateTime) | Arrival: \(flight.arrivalDateTime)")
-                            .font(.subheadline)
-                        Text("Duration: \(flight.duration) min")
-                            .font(.subheadline)
-                        Text("Price: \(flight.currency) \(String(format: "%.2f", flight.price))")
-                            .font(.subheadline)
-                            .bold()
+                    HStack {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("\(flight.departureAirport) → \(flight.arrivalAirport)")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            Text("Duration: \(flight.duration) min")
+                                .font(.subheadline)
+                                .foregroundColor(.white)
+                            Text("Price: \(flight.currency) \(String(format: "%.2f", flight.price))")
+                                .font(.subheadline)
+                                .bold()
+                                .foregroundColor(.white)
+                        }
+
+                        Spacer()
+                        VStack(alignment: .trailing) {
+                            Text(flight.airline)
+                                .font(.subheadline)
+                                .foregroundColor(.white)
+                            Text(flight.flightNumber)
+                                .font(.subheadline)
+                                .bold()
+                                .foregroundColor(.white)
+                        }
                     }
                     .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(selectedFlight?.id == flight.id ? Color.green.opacity(0.3) : Color.white)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        flight.fareFamily == "ECONOMY" ? Color.brown.opacity(0.7) :
+                        flight.fareFamily == "AM_PLUS" ? Color.blue.opacity(0.7) :
+                        flight.fareFamily == "PREMIER" ? Color.purple.opacity(0.7) :
+                        Color.purple.opacity(0.7)
+                    )
                     .cornerRadius(8)
                     .shadow(radius: 3)
                     .padding(.vertical, 10)
@@ -130,28 +173,36 @@ struct FlightView: View {
                 }
                 .listStyle(.plain)
                 .navigationTitle("Flights")
-
-                // Navigate to Flight Details
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        Text("Flights")
+                            .font(.headline) // Customize font if needed
+                            .foregroundColor(.white) // Change title color
+                    }
+                }
                 NavigationLink("", destination: FlightDetailView(flight: selectedFlight), isActive: $navigateToDetails)
                     .hidden()
             }
         }
     }
 
-    // Helper Function to Filter by Time
-    func isTimeInRange(_ time: String) -> Bool {
+    func isTimeInRange(_ time: Date) -> Bool {
         guard selectedTimeRange != "Any" else { return true }
-        let hour = Int(time.prefix(2)) ?? 0
-        switch selectedTimeRange {
-        case "Morning": return (0...11).contains(hour)
-        case "Afternoon": return (12...17).contains(hour)
-        case "Evening": return (18...23).contains(hour)
-        default: return true
-        }
+        
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: time)
+        
+        let timeRanges: [String: ClosedRange<Int>] = [
+            "Morning": 6...11,
+            "Afternoon": 12...17,
+            "Evening": 18...23,
+            "Night": 0...5
+        ]
+        
+        return timeRanges[selectedTimeRange]?.contains(hour) ?? true
     }
 }
 
-// **Cabin Selection Button Component**
 struct CabinButton: View {
     let label: String
     let color: Color

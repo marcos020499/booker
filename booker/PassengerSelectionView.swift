@@ -6,7 +6,6 @@ struct PassengerSelectionView: View {
 
     var body: some View {
         VStack(spacing: 30) {
-            // Title
             Text("Passenger Selection")
                 .font(.title)
                 .fontWeight(.bold)
@@ -17,23 +16,21 @@ struct PassengerSelectionView: View {
                 .font(.headline)
                 .foregroundColor(.gray)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
+                .padding(.horizontal, 10)
 
-            // Passenger selection section
-            VStack(spacing: 25) {
+            VStack(spacing: 15) {
                 PassengerStepper(label: "Adults", subtitle: "Ages 12 and above", count: $passengerInfo.adults, min: 1)
                 PassengerStepper(label: "Children", subtitle: "Ages 2-11", count: $passengerInfo.children)
                 PassengerStepper(label: "Infants", subtitle: "Under 2 years (lap seat)", count: $passengerInfo.infants, showInfoIcon: true)
             }
             .padding(20)
-            .background(Color.white)
+            .background(Color("amBlue"))
             .cornerRadius(16)
             .shadow(radius: 5)
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 10)
 
             Spacer()
 
-            // Confirm button
             Button(action: {
                 presentationMode.wrappedValue.dismiss()
             }) {
@@ -47,15 +44,13 @@ struct PassengerSelectionView: View {
                     .cornerRadius(12)
                     .shadow(radius: 4)
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 10)
             .padding(.bottom, 30)
         }
         .padding()
-        .background(Color(UIColor.systemGray6).edgesIgnoringSafeArea(.all))
     }
 }
 
-// Passenger Stepper with Info Tooltip for Infants
 struct PassengerStepper: View {
     var label: String
     var subtitle: String?
@@ -72,6 +67,7 @@ struct PassengerStepper: View {
                 Text(label)
                     .font(.title3)
                     .fontWeight(.semibold)
+                    .foregroundColor(.white)
 
                 if showInfoIcon {
                     Button(action: { showTooltip.toggle() }) {
@@ -90,7 +86,7 @@ struct PassengerStepper: View {
             if let subtitle = subtitle {
                 Text(subtitle)
                     .font(.caption)
-                    .foregroundColor(.gray)
+                    .foregroundColor(Color("amGray"))
             }
 
             HStack {
@@ -101,20 +97,22 @@ struct PassengerStepper: View {
                 }) {
                     Image(systemName: "minus.circle.fill")
                         .font(.system(size: 40))
-                        .foregroundColor(count > min ? .blue : .gray)
+                        .symbolRenderingMode(.palette)
+                            .foregroundStyle(.white, count > min ? .blue : Color("amGray"))
                 }
 
                 Text("\(count)")
                     .font(.title)
                     .fontWeight(.bold)
                     .frame(width: 50, alignment: .center)
+                    .foregroundColor(.white)
 
                 Button(action: {
                     if count < max { count += 1 }
                 }) {
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: 40))
-                        .foregroundColor(count < max ? .blue : .gray)
+                        .foregroundStyle(.white, count < max ? .blue : Color("amGray"))
                 }
 
                 Spacer()

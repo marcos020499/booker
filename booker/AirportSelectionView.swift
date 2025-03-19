@@ -32,6 +32,7 @@ struct AirportSelectionView: View {
                 }) {
                     VStack(alignment: .leading) {
                         Text(airport.name).font(.headline)
+                            .foregroundColor(Color("amBlue"))
                         Text(airport.code).font(.subheadline).foregroundColor(.gray)
                     }
                 }
